@@ -1,0 +1,29 @@
+dependencies {
+    implementation 'org.antlr:antlr4-runtime:4.13.1'
+    
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+
+// ANTLR configuration
+configurations {
+    antlr4
+}
+
+dependencies {
+    antlr4 'org.antlr:antlr4:4.13.1'
+}
+
+generateGrammarSource {
+    maxHeapSize = "64m"
+    arguments += ['-package', 'com.fareyfs.parser.antlr']
+    outputDirectory = file("${project.buildDir}/generated-src/antlr/main/java")
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += "${project.buildDir}/generated-src/antlr/main/java"
+        }
+    }
+} 
