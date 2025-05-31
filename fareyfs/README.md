@@ -1,87 +1,138 @@
 # FareyFS - A Farey Tree-based File System
 
-FareyFS is a novel file system implementation that uses Farey sequences and Egyptian fractions to organize and index files. It provides efficient file searching and organization capabilities through mathematical properties of Farey sequences.
+FareyFS is a novel file system implementation that uses Farey sequences and Egyptian fractions for efficient file organization and retrieval. The system provides a modern web interface for browsing, searching, and visualizing files through a mathematical lens.
 
 ## Features
 
-- File system representation using Farey sequences
-- Egyptian fraction-based file indexing
-- Prime factorization and log encoding
-- Support for multiple file types (JSON, YAML, HTML, TOML, XML, etc.)
-- Efficient file searching using Farey tree properties
-- ANTLR-based file type detection
-- SQL-based storage backend
-- RESTful API for file operations
-- Modern web frontend
+### Core File System
+- Hierarchical file organization using Farey sequences
+- File and directory management with permissions (rwxr-xr-x format)
+- Owner and group management
+- File content storage with metadata
+- Concurrent access control with optimistic locking
 
-## Project Structure
+### Mathematical Features
+- Farey fraction calculations for file positioning
+- Egyptian fraction representation with infinite precision
+- Prime log encoding for efficient storage
+- Tree visualization of the Farey sequence structure
 
-- `backend/`: Core file system implementation and business logic
-- `frontend/`: Web interface for file browsing and searching
-- `sql_service/`: Database schema and data access layer
-- `parser/`: ANTLR grammar and file type detection
+### Search Capabilities
+- Search by name (fuzzy matching)
+- Search by node type (ROOT, IP, COMPUTER, DRIVE, DIRECTORY, FILE, CONTENT)
+- Search by Farey fraction
+- Search by prime log encoding
 
-## Building
+### Web Interface
+- Modern, responsive UI using Bootstrap 5
+- Interactive file browser
+- Advanced search interface
+- Tree visualization using D3.js
+- Real-time updates
 
-```bash
-mvn clean install
+### Database Features
+- MySQL database with optimized schema
+- Connection pooling with HikariCP
+- Database migrations using Flyway
+- Indexed queries for fast retrieval
+- Transaction management
+
+## Architecture
+
+The system is built using a modular architecture:
+
+- **Frontend**: Spring Boot + Thymeleaf + Bootstrap
+- **Backend**: Spring Boot REST API
+- **SQL Service**: JPA/Hibernate + MySQL
+- **Parser**: ANTLR4 for file type detection
+
+## Setup
+
+### Prerequisites
+- Java 17 or higher
+- MySQL 8.0 or higher
+- Gradle 7.0 or higher
+
+### Database Setup
+1. Create a MySQL database:
+```sql
+CREATE DATABASE fareyfs;
 ```
 
-## Running
+2. Configure database connection in `sql_service/src/main/resources/application.properties`:
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/fareyfs
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+```
 
+### Building the Project
+```bash
+# Build all modules
+./gradlew build
+
+# Run specific module
+./gradlew :frontend:bootRun
+./gradlew :backend:bootRun
+./gradlew :sql_service:bootRun
+```
+
+### Running the Application
 1. Start the SQL service:
 ```bash
-cd sql_service
-mvn spring-boot:run
+./gradlew :sql_service:bootRun
 ```
 
 2. Start the backend:
 ```bash
-cd backend
-mvn spring-boot:run
+./gradlew :backend:bootRun
 ```
 
 3. Start the frontend:
 ```bash
-cd frontend
-mvn spring-boot:run
+./gradlew :frontend:bootRun
 ```
 
-## File System Structure
+The application will be available at:
+- Frontend: http://localhost:8080
+- Backend API: http://localhost:8081
+- SQL Service: http://localhost:8082
 
-The file system is organized as a Farey tree with the following hierarchy:
+## API Endpoints
 
-1. Root node (0.0.0.0)
-2. IP address nodes
-3. Computer name nodes
-4. Drive nodes
-5. Directory nodes
-6. File nodes
-7. Content nodes
+### Node Management
+- `POST /api/nodes` - Create a new node
+- `PUT /api/nodes/{id}` - Update a node
+- `DELETE /api/nodes/{id}` - Delete a node
+- `GET /api/nodes/{id}` - Get node details
+- `GET /api/nodes/{id}/children` - Get node children
+- `GET /api/nodes/root` - Get root node
 
-Each node is assigned a Farey fraction and Egyptian fraction representation, allowing for efficient searching and organization.
+### Search Operations
+- `GET /api/nodes/search/name?name={query}` - Search by name
+- `GET /api/nodes/search/type?type={type}` - Search by type
+- `GET /api/nodes/search/farey?left={left}&right={right}` - Search by Farey fraction
+- `GET /api/nodes/search/prime-log?encoding={encoding}` - Search by prime log encoding
 
-## File Type Detection
+## Mathematical Background
 
-The system uses ANTLR to detect file types based on:
-- File extensions
-- Magic bytes
-- Content analysis
+### Farey Sequences
+A Farey sequence of order n is the sequence of completely reduced fractions between 0 and 1, arranged in order of increasing size, with denominators not exceeding n.
 
-Supported file types:
-- JSON
-- YAML
-- HTML
-- Markdown
-- TOML
-- XML
-- Binary files (images, PDFs, etc.)
-- Plain text
+### Egyptian Fractions
+An Egyptian fraction is a sum of distinct unit fractions, where a unit fraction is a fraction with numerator 1.
 
-## API Documentation
+### Prime Log Encoding
+A compact representation of Egyptian fractions using prime numbers and their logarithms.
 
-The API documentation is available at `/swagger-ui.html` when running the backend service.
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 
-MIT License 
+This project is licensed under the MIT License - see the LICENSE file for details. 
