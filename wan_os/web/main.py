@@ -13,6 +13,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from features.feature_manager import FeatureManager
 from fareyfs.fareyfs import FareyFS
 from auth.user_manager import UserManager
+from bat_belt.integration import BatBeltIntegration
 
 app = FastAPI(title="Farey WAN OS Web Interface")
 
@@ -50,6 +51,9 @@ class SSHKey(BaseModel):
 class LocalDirectory(BaseModel):
     path: str
 
+class BatBeltCommand(BaseModel):
+    command: str
+
 # Dependencies
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -64,6 +68,10 @@ async def get_fareyfs():
 async def get_user_manager():
     manager = UserManager("config.yaml")
     yield manager
+
+async def get_bat_belt():
+    integration = BatBeltIntegration("config.yaml")
+    yield integration
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
@@ -251,6 +259,21 @@ async def search_files(
 ):
     results = await fareyfs.search(query)
     return results
+
+# Bat_Belt routes
+@app.get("/bat-belt/commands")
+async def get_bat_belt_commands(
+    integration: BatBeltIntegration = Depends(get_bat_belt)
+):
+    return integration.get_available_commands()
+
+@app.post("/bat-belt/execute")
+async def execute_bat_belt_command(
+    command: BatBeltCommand,
+    integration: BatBeltIntegration = Depends(get_bat_belt)
+):
+    result = await integration.handle_command(command.command, {})
+    return {"result": result}
 
 if __name__ == "__main__":
     import uvicorn

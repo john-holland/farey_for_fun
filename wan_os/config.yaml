@@ -50,6 +50,21 @@ unleash:
     - name: "icp-integration"
       description: "Internet Computer Protocol integration"
       enabled: true
+    - name: "bat-belt-shortcuts"
+      description: "Bat_Belt shortcut integration"
+      enabled: true
+    - name: "bat-belt-mud"
+      description: "Bat_Belt MUD integration"
+      enabled: false
+    - name: "dailiance-integration"
+      description: "Dailiance integration with FareyFS"
+      enabled: false
+    - name: "roguescroll-integration"
+      description: "RogueScroll integration with FareyFS"
+      enabled: false
+    - name: "fareyfs-release"
+      description: "Enable FareyFS release features"
+      enabled: false
 
 rancher:
   api_url: "https://rancher.example.com/v3"
@@ -77,10 +92,19 @@ hypervisor:
     - token: "ICP"
       allocation: "dynamic"
       scaling: "auto"
+    - token: "WASM"
+      allocation: "dynamic"
+      scaling: "auto"
+      runtime: "wasmtime"
+      default_resources:
+        memory: "1GB"
+        table_size: 1000
+        instances: 100
   properties:
     isolation: true
     resource_limits: "dynamic"
     migration: "live"
+    wasm_support: true
 
 fareyfs:
   base_path: "./fareyfs_data"
@@ -96,6 +120,23 @@ fareyfs:
     index_type: "farey_tree"
     max_depth: 1000
     cache_size: "1GB"
+  bat_belt:
+    shortcuts:
+      enabled: true
+      prefix: "farey:"
+      commands:
+        - name: "search"
+          description: "Search files in FareyFS"
+          pattern: "farey:search {query}"
+        - name: "upload"
+          description: "Upload file to FareyFS"
+          pattern: "farey:upload {file} {path}"
+        - name: "get"
+          description: "Get file from FareyFS"
+          pattern: "farey:get {path}"
+        - name: "list"
+          description: "List files in FareyFS"
+          pattern: "farey:list {path}"
 
 volume_management:
   type: "distributed"

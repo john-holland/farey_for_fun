@@ -5,6 +5,7 @@ import subprocess
 import os
 import signal
 import logging
+import wasmtime
 from typing import Dict, List, Optional
 from pathlib import Path
 
@@ -14,9 +15,54 @@ class WorkloadManager:
         self.workloads = {}
         self.child_processes = {}
         self.docker_client = docker.from_env()
+        self.wasm_engine = wasmtime.Engine()
         
     async def allocate_resources(self, workload_id: str, resources: Dict) -> bool:
         """Allocate resources for a specific workload"""
+        try:
+            if self.token_type == "WASM":
+                return await self._allocate_wasm_resources(workload_id, resources)
+            else:
+                return await self._allocate_container_resources(workload_id, resources)
+        except Exception as e:
+            logging.error(f"Error allocating resources: {e}")
+            return False
+
+    async def _allocate_wasm_resources(self, workload_id: str, resources: Dict) -> bool:
+        """Allocate resources for a WASM workload"""
+        try:
+            # Create WASM store with resource limits
+            store = wasmtime.Store(self.wasm_engine)
+            store.limiter(
+                memory_size=resources.get('memory', 1024 * 1024 * 1024),  # Default 1GB
+                table_size=resources.get('table_size', 1000),
+                instances=resources.get('instances', 100)
+            )
+
+            # Load and compile WASM module
+            wasm_path = Path(__file__).parent / "wasm_modules" / f"{workload_id}.wasm"
+            if not wasm_path.exists():
+                logging.error(f"WASM module not found: {wasm_path}")
+                return False
+
+            module = wasmtime.Module.from_file(self.wasm_engine, str(wasm_path))
+            instance = wasmtime.Instance(store, module, [])
+
+            # Store workload info
+            self.workloads[workload_id] = {
+                "type": "WASM",
+                "store": store,
+                "instance": instance,
+                "resources": resources
+            }
+
+            return True
+        except Exception as e:
+            logging.error(f"Error allocating WASM resources: {e}")
+            return False
+
+    async def _allocate_container_resources(self, workload_id: str, resources: Dict) -> bool:
+        """Allocate resources for a container workload"""
         try:
             # Build the container if it doesn't exist
             image_name = f"farey-wan-{self.token_type.lower()}-worker"
@@ -51,17 +97,17 @@ class WorkloadManager:
             container.reload()
             ssh_port = container.ports['22/tcp'][0]['HostPort']
             
+            # Store workload info
             self.workloads[workload_id] = {
-                'container': container,
-                'ssh_port': ssh_port
+                "type": "container",
+                "container": container,
+                "ssh_port": ssh_port,
+                "resources": resources
             }
-            
-            # Start child process monitoring
-            await self.start_child_process_monitor(workload_id)
             
             return True
         except Exception as e:
-            logging.error(f"Failed to allocate resources: {e}")
+            logging.error(f"Error allocating container resources: {e}")
             return False
 
     async def start_child_process_monitor(self, workload_id: str):
@@ -98,36 +144,40 @@ class WorkloadManager:
                 del self.child_processes[workload_id]
 
     async def stop_workload(self, workload_id: str) -> bool:
-        """Stop a running workload and its child processes"""
+        """Stop a running workload"""
         if workload_id in self.workloads:
-            # Stop child processes
-            if workload_id in self.child_processes:
-                process = self.child_processes[workload_id]
-                process.terminate()
-                await process.wait()
-                del self.child_processes[workload_id]
-            
-            # Stop and remove container
-            container = self.workloads[workload_id]['container']
-            container.stop()
-            container.remove()
-            del self.workloads[workload_id]
-            return True
+            workload = self.workloads[workload_id]
+            try:
+                if workload["type"] == "WASM":
+                    # Clean up WASM resources
+                    workload["store"].cleanup()
+                else:
+                    # Stop container
+                    workload["container"].stop()
+                    workload["container"].remove()
+                del self.workloads[workload_id]
+                return True
+            except Exception as e:
+                logging.error(f"Error stopping workload: {e}")
+                return False
         return False
 
     def get_workload_info(self, workload_id: str) -> Optional[Dict]:
-        """Get information about a workload including SSH connection details"""
+        """Get information about a specific workload"""
         if workload_id in self.workloads:
-            container = self.workloads[workload_id]['container']
-            ssh_port = self.workloads[workload_id]['ssh_port']
-            
-            return {
-                'id': workload_id,
-                'container_id': container.id,
-                'ssh_port': ssh_port,
-                'ssh_command': f"ssh root@localhost -p {ssh_port}",
-                'status': container.status
-            }
+            workload = self.workloads[workload_id]
+            if workload["type"] == "WASM":
+                return {
+                    "type": "WASM",
+                    "resources": workload["resources"],
+                    "status": "running"
+                }
+            else:
+                return {
+                    "type": "container",
+                    "ssh_command": f"ssh -p {workload['ssh_port']} root@localhost",
+                    "status": workload["container"].status
+                }
         return None
 
 class Hypervisor:

@@ -15,6 +15,7 @@ import FeatureToggles from './components/FeatureToggles';
 import IPManagement from './components/IPManagement';
 import FileManager from './components/FileManager';
 import LogViewer from './components/LogViewer';
+import BatBeltCommands from './components/BatBeltCommands';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -89,6 +90,7 @@ function App() {
               <Tab>Features</Tab>
               <Tab>IP Management</Tab>
               <Tab>Files</Tab>
+              <Tab>Bat_Belt</Tab>
               <Tab>Logs</Tab>
             </TabList>
 
@@ -110,6 +112,10 @@ function App() {
               
               <TabPanel>
                 <FileManager />
+              </TabPanel>
+              
+              <TabPanel>
+                <BatBeltCommands />
               </TabPanel>
               
               <TabPanel>
