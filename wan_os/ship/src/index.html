@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WAN OS Ship</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">WAN OS Ship</h1>
+            <p class="text-gray-600">Network details and compute node contribution</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <!-- Tabs -->
+            <div class="flex border-b mb-4">
+                <button class="tab-btn px-4 py-2 font-semibold text-blue-600 border-b-2 border-blue-600" data-tab="network">Network</button>
+                <button class="tab-btn px-4 py-2 font-semibold text-gray-600" data-tab="compute">Compute Node</button>
+                <button class="tab-btn px-4 py-2 font-semibold text-gray-600" data-tab="docs">Documentation</button>
+            </div>
+
+            <!-- Network Tab -->
+            <div id="network" class="tab-content active">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 p-4 rounded">
+                        <h3 class="text-lg font-semibold mb-2">CPU Usage</h3>
+                        <canvas id="cpuChart"></canvas>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded">
+                        <h3 class="text-lg font-semibold mb-2">Memory Usage</h3>
+                        <canvas id="memoryChart"></canvas>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h3 class="text-lg font-semibold mb-2">Network Interfaces</h3>
+                    <div id="networkInterfaces" class="space-y-2"></div>
+                </div>
+                <div class="mt-4">
+                    <h3 class="text-lg font-semibold mb-2">Dailiance Performance</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded">
+                            <canvas id="dailianceChart"></canvas>
+                        </div>
+                        <div id="dailianceStatus"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compute Node Tab -->
+            <div id="compute" class="tab-content">
+                <div class="bg-gray-50 p-4 rounded mb-4">
+                    <h3 class="text-lg font-semibold mb-2">Compute Node Status</h3>
+                    <div class="flex items-center space-x-4">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="computeToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            <span class="ml-3 text-sm font-medium text-gray-900">Enable Compute Node</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded">
+                    <h3 class="text-lg font-semibold mb-2">Resource Allocation</h3>
+                    <div class="space-y-2">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">CPU Usage Limit</label>
+                            <input type="range" id="cpuLimit" min="0" max="100" value="50" class="w-full">
+                            <span id="cpuLimitValue" class="text-sm text-gray-600">50%</span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Memory Usage Limit</label>
+                            <input type="range" id="memoryLimit" min="0" max="100" value="50" class="w-full">
+                            <span id="memoryLimitValue" class="text-sm text-gray-600">50%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documentation Tab -->
+            <div id="docs" class="tab-content">
+                <div id="releasePlan" class="prose max-w-none"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html> 
