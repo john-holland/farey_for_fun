@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  wan_os:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=development
+    networks:
+      - wan_os_network
+
+  ship:
+    build:
+      context: ./ship
+      dockerfile: Dockerfile
+    ports:
+      - "3000"
+    volumes:
+      - ./ship:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - wan_os
+    networks:
+      - wan_os_network
+
+networks:
+  wan_os_network:
+    driver: bridge 
