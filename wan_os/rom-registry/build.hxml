@@ -1,0 +1,79 @@
+# WAN OS ROM Registry Haxe Build Configuration
+# Builds Haxe libraries for cross-platform ROM support
+
+# Main Haxe library
+-lib hxnodejs
+-lib hxjson
+-lib hxasync
+-lib hxtelemetry
+
+# Source paths
+-cp src
+-cp haxe
+
+# Main entry points
+-main wanos.rom.Registry
+-main wanos.rom.types.ROMTypes
+-main wanos.rom.validator.ROMValidator
+
+# Output targets
+# JavaScript for Node.js
+-js dist/wanos-rom-registry.js
+-D nodejs
+
+# Python for cross-platform support
+-python dist/wanos-rom-registry.py
+
+# PHP for web integration
+-php dist/php
+
+# C++ for high-performance
+-cpp dist/cpp
+
+# Java for enterprise
+-java dist/java
+
+# C# for .NET
+-cs dist/csharp
+
+# Flash (legacy support)
+-swf dist/wanos-rom-registry.swf
+
+# HashLink for embedded systems
+-hl dist/wanos-rom-registry.hl
+
+# Neko for scripting
+-neko dist/wanos-rom-registry.n
+
+# Lua for embedded
+-lua dist/lua
+
+# Output directory structure
+--macro wanos.rom.build.BuildMacro.createOutputDirs()
+
+# Conditional compilation
+-D haxe4
+-D haxe_ver=4.3.0
+
+# Optimization
+-D no-inline
+-D no-debug
+
+# Metadata
+-D wanos_rom_version=1.0.0
+-D wanos_rom_environment=production
+
+# Feature flags
+-D wasm_support
+-D npm_support
+-D haxe_support
+-D telemetry_enabled
+-D monitoring_enabled
+
+# Build macros
+--macro wanos.rom.build.BuildMacro.processROMs()
+--macro wanos.rom.build.BuildMacro.generateTypes()
+--macro wanos.rom.build.BuildMacro.validateSchemas()
+
+# Output formatting
+--macro wanos.rom.build.BuildMacro.formatOutput()
