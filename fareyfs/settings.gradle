@@ -1,0 +1,6 @@
+rootProject.name = 'fareyfs'
+
+include 'backend'
+include 'frontend'
+include 'sql_service'
+include 'parser' 

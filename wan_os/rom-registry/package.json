@@ -1,0 +1,149 @@
+{
+  "name": "@wanos-rom/registry",
+  "version": "1.0.0",
+  "description": "WAN OS ROM Registry - Package management for WAN OS ROMs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && haxe build.hxml",
+    "build:npm": "tsc",
+    "build:haxe": "haxe build.hxml",
+    "dev": "ts-node src/index.ts",
+    "test": "jest",
+    "test:rom": "jest --testNamePattern=ROM",
+    "test:registry": "jest --testNamePattern=Registry",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts",
+    "publish:rom": "npm run build && npm publish",
+    "publish:haxe": "haxelib submit wanos-rom-registry.zip",
+    "rom:register": "ts-node src/cli/register-rom.ts",
+    "rom:list": "ts-node src/cli/list-roms.ts",
+    "rom:install": "ts-node src/cli/install-rom.ts",
+    "rom:update": "ts-node src/cli/update-rom.ts",
+    "rom:remove": "ts-node src/cli/remove-rom.ts",
+    "registry:start": "ts-node src/server/registry-server.ts",
+    "registry:sync": "ts-node src/cli/sync-registries.ts"
+  },
+  "keywords": [
+    "wanos",
+    "rom",
+    "registry",
+    "package-manager",
+    "npm",
+    "haxe",
+    "wasm",
+    "distributed-computing"
+  ],
+  "author": "WAN OS Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wanos/wanos-rom-registry.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wanos/wanos-rom-registry/issues"
+  },
+  "homepage": "https://github.com/wanos/wanos-rom-registry#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "@wanos-rom/core": "^1.0.0",
+    "@wanos-rom/types": "^1.0.0",
+    "@wanos-rom/validator": "^1.0.0",
+    "axios": "^1.6.0",
+    "commander": "^11.0.0",
+    "inquirer": "^9.2.0",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "semver": "^7.5.0",
+    "tar": "^6.2.0",
+    "fs-extra": "^11.1.0",
+    "glob": "^10.3.0",
+    "yaml": "^2.3.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/fs-extra": "^11.0.0",
+    "@types/glob": "^8.1.0",
+    "@types/tar": "^6.1.0",
+    "@types/semver": "^7.5.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  },
+  "peerDependencies": {
+    "@wanos-rom/common": "^1.0.0"
+  },
+  "optionalDependencies": {
+    "@wanos-rom/haxe": "^1.0.0",
+    "@wanos-rom/wasm": "^1.0.0"
+  },
+  "config": {
+    "rom_registry": {
+      "npm_registry": "https://registry.npmjs.org/",
+      "haxe_registry": "https://lib.haxe.org/",
+      "wanos_registry": "https://registry.wanos.cloud/",
+      "rom_prefix": "@wanos-rom/",
+      "default_environment": "local"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "haxe/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "directories": {
+    "lib": "dist",
+    "bin": "dist/bin",
+    "src": "src",
+    "haxe": "haxe",
+    "test": "test"
+  },
+  "bin": {
+    "wanos-rom": "./dist/bin/wanos-rom.js"
+  },
+  "wanos": {
+    "rom_types": [
+      "file-processor",
+      "search-engine", 
+      "storage-manager",
+      "wasm-runtime",
+      "telemetry-collector",
+      "monitoring-dashboard",
+      "feature-flag-manager",
+      "security-module",
+      "network-router",
+      "cache-manager"
+    ],
+    "environments": [
+      "local",
+      "vendor", 
+      "enterprise",
+      "public"
+    ],
+    "capabilities": [
+      "npm_packages",
+      "haxe_libraries",
+      "wasm_modules",
+      "docker_containers",
+      "helm_charts"
+    ]
+  }
+}

@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAN OS Frontend ROM - Serve Pattern Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .rom-info {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .rom-info h2 {
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .rom-info ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .rom-info li {
+            margin-bottom: 0.5rem;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .rom-info li:before {
+            content: "🚀";
+            position: absolute;
+            left: -1rem;
+        }
+
+        .demo-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .demo-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .demo-card h3 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+        }
+
+        .demo-card p {
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .demo-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .demo-button:hover {
+            transform: scale(1.05);
+        }
+
+        .persistence-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .persistence-section h2 {
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .counter-display {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .counter-value {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .counter-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 0 0.5rem;
+        }
+
+        .counter-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .counter-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .persistence-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .info-item {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .info-item .label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-item .value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .status-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .status-section h2 {
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .status-item {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .status-item .label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-item .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            opacity: 0.7;
+        }
+
+        .footer a {
+            color: #ffd700;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-section {
+                grid-template-columns: 1fr;
+            }
+
+            .counter-value {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 WAN OS Frontend ROM</h1>
+            <p>Demonstrating the Serve Pattern - From Static Frontend to Distributed Backend</p>
+        </div>
+
+        <div class="rom-info">
+            <h2>📋 ROM Information</h2>
+            <ul>
+                <li><strong>Type:</strong> Frontend ROM (Read-Only Module)</li>
+                <li><strong>Pattern:</strong> Serve Pattern with Intelligent Routing</li>
+                <li><strong>Architecture:</strong> Static Frontend → Intelligent Router → Distributed Backend</li>
+                <li><strong>Environment:</strong> Local Development (Mock Backends)</li>
+                <li><strong>Capabilities:</strong> Static Serving, Backend Routing, Health Monitoring, Persistence</li>
+            </ul>
+        </div>
+
+        <div class="persistence-section">
+            <h2>💾 Persistence Demo</h2>
+            <div class="counter-display">
+                <div class="counter-value" id="counterValue">0</div>
+                <button class="counter-button" onclick="incrementCounter()" id="incrementButton">
+                    🔢 Increment Counter
+                </button>
+                <button class="counter-button" onclick="refreshCounter()" id="refreshButton">
+                    🔄 Refresh
+                </button>
+            </div>
+            <div class="persistence-info">
+                <div class="info-item">
+                    <div class="label">Last Updated</div>
+                    <div class="value" id="lastUpdated">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Data Path</div>
+                    <div class="value" id="dataPath">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Status</div>
+                    <div class="value" id="persistenceStatus">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <div class="demo-card">
+                <h3>🌐 Static File Serving</h3>
+                <p>This HTML file is served as a static asset from the frontend ROM. The server intelligently routes API requests to distributed backends.</p>
+                <button class="demo-button" onclick="testStaticServing()">Test Static Serving</button>
+            </div>
+
+            <div class="demo-card">
+                <h3>🔄 API Routing</h3>
+                <p>API requests are intelligently routed through the WAN OS router to healthy backends based on health checks and load balancing.</p>
+                <button class="demo-button" onclick="testAPIRouting()">Test API Routing</button>
+            </div>
+
+            <div class="demo-card">
+                <h3>📁 File Service</h3>
+                <p>File operations are routed to specialized file service backends with proper authentication and rate limiting.</p>
+                <button class="demo-button" onclick="testFileService()">Test File Service</button>
+            </div>
+        </div>
+
+        <div class="status-section">
+            <h2>📊 System Status</h2>
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="label">Frontend ROM</div>
+                    <div class="value">✅ Active</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">Intelligent Router</div>
+                    <div class="value">🔄 Running</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">Backend Discovery</div>
+                    <div class="value">🔍 ROM Registry</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">Health Monitoring</div>
+                    <div class="value">🏥 Active</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">Persistence</div>
+                    <div class="value" id="systemPersistenceStatus">✅ Active</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Built with ❤️ using the WAN OS Serve Pattern</p>
+            <p><a href="/health">Health Check</a> | <a href="/metrics">Metrics</a> | <a href="/registry/health">Registry Health</a> | <a href="/persistence/info">Persistence Info</a></p>
+        </div>
+    </div>
+
+    <script>
+        let currentCounter = 0;
+        let isUpdating = false;
+
+        // Load counter on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshCounter();
+        });
+
+        // Persistence functions
+        async function incrementCounter() {
+            if (isUpdating) return;
+            
+            try {
+                isUpdating = true;
+                const incrementButton = document.getElementById('incrementButton');
+                incrementButton.disabled = true;
+                incrementButton.textContent = '⏳ Updating...';
+
+                const response = await fetch('/persistence/counter/increment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentCounter = data.counter;
+                    updateCounterDisplay();
+                    updatePersistenceInfo(data.info);
+                    showNotification('✅ Counter incremented successfully!', 'success');
+                } else {
+                    const errorData = await response.json();
+                    showNotification('❌ Failed to increment counter: ' + errorData.message, 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error incrementing counter: ' + error.message, 'error');
+            } finally {
+                isUpdating = false;
+                const incrementButton = document.getElementById('incrementButton');
+                incrementButton.disabled = false;
+                incrementButton.textContent = '🔢 Increment Counter';
+            }
+        }
+
+        async function refreshCounter() {
+            try {
+                const refreshButton = document.getElementById('refreshButton');
+                refreshButton.disabled = true;
+                refreshButton.textContent = '⏳ Loading...';
+
+                const response = await fetch('/persistence/counter');
+                if (response.ok) {
+                    const data = await response.json();
+                    currentCounter = data.counter;
+                    updateCounterDisplay();
+                    updatePersistenceInfo(data.info);
+                    showNotification('🔄 Counter refreshed!', 'info');
+                } else {
+                    showNotification('❌ Failed to refresh counter', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error refreshing counter: ' + error.message, 'error');
+            } finally {
+                const refreshButton = document.getElementById('refreshButton');
+                refreshButton.disabled = false;
+                refreshButton.textContent = '🔄 Refresh';
+            }
+        }
+
+        function updateCounterDisplay() {
+            document.getElementById('counterValue').textContent = currentCounter;
+        }
+
+        function updatePersistenceInfo(info) {
+            if (info) {
+                document.getElementById('lastUpdated').textContent = new Date(info.lastUpdated).toLocaleString();
+                document.getElementById('dataPath').textContent = info.dataPath.split('/').pop() || 'persistence.json';
+                document.getElementById('persistenceStatus').textContent = '✅ Active';
+                document.getElementById('systemPersistenceStatus').textContent = '✅ Active';
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                border-radius: 10px;
+                color: white;
+                font-weight: bold;
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+                max-width: 300px;
+                word-wrap: break-word;
+            `;
+
+            // Set background color based on type
+            switch (type) {
+                case 'success':
+                    notification.style.background = 'linear-gradient(45deg, #4CAF50, #45a049)';
+                    break;
+                case 'error':
+                    notification.style.background = 'linear-gradient(45deg, #f44336, #d32f2f)';
+                    break;
+                case 'info':
+                default:
+                    notification.style.background = 'linear-gradient(45deg, #2196F3, #1976D2)';
+                    break;
+            }
+
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Test functions for the demo
+        async function testStaticServing() {
+            try {
+                const response = await fetch('/');
+                if (response.ok) {
+                    showNotification('✅ Static serving working! Frontend ROM is active.', 'success');
+                } else {
+                    showNotification('❌ Static serving failed.', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error testing static serving: ' + error.message, 'error');
+            }
+        }
+
+        async function testAPIRouting() {
+            try {
+                const response = await fetch('/api/test');
+                if (response.ok) {
+                    const data = await response.json();
+                    showNotification('✅ API routing working! Backend: ' + data.backend, 'success');
+                } else {
+                    showNotification('❌ API routing failed. Status: ' + response.status, 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error testing API routing: ' + error.message, 'error');
+            }
+        }
+
+        async function testFileService() {
+            try {
+                const response = await fetch('/files/test');
+                if (response.ok) {
+                    const data = await response.json();
+                    showNotification('✅ File service working! Service: ' + data.service, 'success');
+                } else {
+                    showNotification('❌ File service failed. Status: ' + response.status, 'error');
+                }
+            } catch (error) {
+                showNotification('❌ Error testing file service: ' + error.message, 'error');
+            }
+        }
+
+        // Real-time status updates (if WebSocket is available)
+        if (typeof WebSocket !== 'undefined') {
+            const ws = new WebSocket(`ws://${window.location.host}`);
+            
+            ws.onopen = function() {
+                console.log('🔌 WebSocket connected for real-time updates');
+            };
+            
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'routing_stats') {
+                        updateRoutingStats(data);
+                    }
+                } catch (error) {
+                    console.log('WebSocket message:', event.data);
+                }
+            };
+            
+            ws.onerror = function(error) {
+                console.log('WebSocket error:', error);
+            };
+        }
+
+        function updateRoutingStats(stats) {
+            console.log('🔄 Routing stats updated:', stats);
+            // Update UI with real-time routing information
+        }
+
+        // Display ROM information
+        console.log('🚀 WAN OS Frontend ROM Loaded');
+        console.log('📁 This is a Read-Only Module (ROM)');
+        console.log('🔄 Requests will be intelligently routed to distributed backends');
+        console.log('🏥 Health monitoring and circuit breakers are active');
+        console.log('💾 Persistence system is active with file-based storage');
+    </script>
+
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    </style>
+</body>
+</html>

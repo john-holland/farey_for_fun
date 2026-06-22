@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>FareyFS - A Farey Tree-based File System</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">FareyFS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/browser">File Browser</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/search">Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/visualizer">Tree Visualizer</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="jumbotron">
+            <h1 class="display-4">Welcome to FareyFS</h1>
+            <p class="lead">A novel file system implementation using Farey sequences and Egyptian fractions.</p>
+            <hr class="my-4">
+            <p>Explore your files through a mathematical lens with our Farey tree-based organization system.</p>
+            <a class="btn btn-primary btn-lg" href="/browser" role="button">Start Browsing</a>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">File Browser</h5>
+                        <p class="card-text">Browse your files using our intuitive interface with Farey tree visualization.</p>
+                        <a href="/browser" class="btn btn-primary">Open Browser</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Advanced Search</h5>
+                        <p class="card-text">Search files using Farey fractions, prime log encodings, and more.</p>
+                        <a href="/search" class="btn btn-primary">Start Searching</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Tree Visualizer</h5>
+                        <p class="card-text">Visualize the Farey tree structure of your file system.</p>
+                        <a href="/visualizer" class="btn btn-primary">View Tree</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html> 

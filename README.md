@@ -49,4 +49,9 @@ You can modify the wobble effect by adjusting the parameters in the `FRAGMENT_SH
 
 - If the overlay doesn't appear, make sure no other full-screen applications are running
 - If the effect is too intense, try reducing the multipliers in the shader code
-- If you experience performance issues, try closing other GPU-intensive applications 
+- If you experience performance issues, try closing other GPU-intensive applications
+
+---
+
+**Credits:**
+This project benefited from AI code assistance by [Cursor](https://www.cursor.com/). 

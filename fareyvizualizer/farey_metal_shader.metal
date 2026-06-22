@@ -9,9 +9,33 @@ struct WobbleParams {
     float primeFactor;
     float wobbleIntensity;
     float rotationSpeed;
-    float primeFactors[8];  // Support up to 8 prime factors
-    int primeMultiplicity[8];
+    float primeFactors[8];  // Fixed-size array of 8 floats
+    int primeMultiplicity[8];  // Fixed-size array of 8 ints
+} __attribute__((aligned(16)));  // Ensure 16-byte alignment
+
+// Vertex shader output structure
+struct VertexOut {
+    float4 position [[position]];
+    float2 uv;
 };
+
+// Vertex shader
+vertex VertexOut fareyVertexShader(
+    uint vertexID [[vertex_id]],
+    constant float4* vertices [[buffer(0)]],
+    constant WobbleParams& params [[buffer(1)]]
+) {
+    VertexOut out;
+    out.position = vertices[vertexID];
+    
+    // Calculate UV coordinates based on vertex position
+    out.uv = float2(
+        (vertices[vertexID].x + 1.0) * 0.5,
+        (vertices[vertexID].y + 1.0) * 0.5
+    );
+    
+    return out;
+}
 
 // Helper function to get prime-based color using HSL
 float3 hsl2rgb(float3 hsl) {
@@ -71,21 +95,38 @@ float2 applyPrimeWobble(float2 uv, constant WobbleParams& params) {
 
 // Main fragment shader
 fragment float4 fareyWobbleShader(
-    float2 uv [[stage_in]],
+    VertexOut in [[stage_in]],
     constant WobbleParams& params [[buffer(0)]],
-    texture2d<float> inputTexture [[texture(0)]]
+    texture2d<float> backgroundTexture [[texture(0)]]
 ) {
-    constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
+    constexpr sampler textureSampler(
+        filter::linear,
+        address::repeat
+    );
     
-    // Calculate eye-relative position with smooth interpolation
-    float2 eyeOffset = params.eyePosition - params.screenCenter;
-    float2 adjustedUV = uv + eyeOffset * 0.1;
+    // Normalize screen coordinates
+    float2 screenSize = float2(backgroundTexture.get_width(), backgroundTexture.get_height());
+    float2 normalizedEyePos = params.eyePosition / screenSize;
+    float2 normalizedCenter = params.screenCenter / screenSize;
     
-    // Apply prime-based wobble
-    float2 wobbledUV = applyPrimeWobble(adjustedUV, params);
+    // Calculate parallax offset
+    float2 eyeOffset = (normalizedEyePos - normalizedCenter) * 0.5;
     
-    // Sample texture with wobbled coordinates
-    float4 color = inputTexture.sample(textureSampler, wobbledUV);
+    // Apply parallax effect with depth
+    float depth = 0.5 + 0.5 * sin(params.time * 0.5);
+    float2 parallaxOffset = eyeOffset * depth;
+    
+    // Add controlled time-based animation to UV coordinates
+    float2 animatedUV = in.uv;
+    float wobbleAmount = 0.05 * params.wobbleIntensity;  // Scale wobble by intensity
+    animatedUV.x += sin(params.time * params.rotationSpeed) * wobbleAmount;
+    animatedUV.y += cos(params.time * params.rotationSpeed) * wobbleAmount;
+    
+    // Apply prime-based wobble to the animated coordinates
+    float2 wobbledUV = applyPrimeWobble(animatedUV + parallaxOffset, params);
+    
+    // Sample background texture with wobbled coordinates
+    float4 wobbledColor = backgroundTexture.sample(textureSampler, wobbledUV);
     
     // Calculate prime-based color
     float3 primeColor = float3(0.0);
@@ -100,10 +141,10 @@ fragment float4 fareyWobbleShader(
         // Generate HSL color based on prime
         float hue = fmod(prime * 30.0, 360.0) / 360.0;
         float saturation = 0.8;
-        float lightness = 0.5 + 0.2 * sin(params.time * prime);
+        float lightness = 0.5 + 0.2 * sin(params.time * prime * params.rotationSpeed);
         
         float3 hslColor = hsl2rgb(float3(hue, saturation, lightness));
-        float intensity = sin(params.time * prime) * 0.5 + 0.5;
+        float intensity = sin(params.time * prime * params.rotationSpeed) * 0.5 + 0.5;
         
         primeColor += hslColor * intensity * multiplicity;
         totalIntensity += intensity * multiplicity;
@@ -114,7 +155,20 @@ fragment float4 fareyWobbleShader(
         primeColor /= totalIntensity;
     }
     
-    float3 finalColor = mix(color.rgb, primeColor, params.wobbleIntensity);
+    // Add subtle color shift based on eye position
+    float3 eyeColorShift = float3(
+        sin(normalizedEyePos.x * 2.0 * M_PI_F) * 0.1,
+        sin(normalizedEyePos.y * 2.0 * M_PI_F) * 0.1,
+        sin((normalizedEyePos.x + normalizedEyePos.y) * M_PI_F) * 0.1
+    );
     
-    return float4(finalColor, color.a);
+    // Mix background color with prime-based color
+    float3 finalColor = mix(wobbledColor.rgb, primeColor + eyeColorShift, params.wobbleIntensity);
+    
+    // Add a subtle glow effect
+    float glow = 0.2 * sin(params.time * params.rotationSpeed) + 0.3;
+    finalColor += primeColor * glow * params.wobbleIntensity;
+    
+    // Ensure alpha is always 1.0
+    return float4(finalColor, 1.0);
 } 

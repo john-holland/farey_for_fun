@@ -1,0 +1,686 @@
+# WAN OS SaaS ROM Configuration
+# Provides different deployment configurations for various environments
+# Enables global monitoring and herd immunity against downtime
+
+metadata:
+  name: "WAN OS SaaS ROM"
+  version: "1.0.0"
+  description: "Software as a Service ROM configuration for WAN OS global monitoring"
+  author: "WAN OS Team"
+  last_updated: "2024-03-23"
+  license: "MIT"
+
+# Local Development Configuration
+# Full values, no secrets, for local development and testing
+local:
+  name: "local"
+  description: "Local development environment with full configuration"
+  environment: "development"
+  
+  # Network Configuration
+  network:
+    host: "localhost"
+    port: 8080
+    ssl: false
+    cors:
+      enabled: true
+      origins: ["http://localhost:3000", "http://localhost:8080"]
+  
+  # Database Configuration
+  database:
+    type: "h2"
+    url: "jdbc:h2:mem:wanos_local"
+    username: "sa"
+    password: ""
+    hibernate:
+      ddl_auto: "create-drop"
+      show_sql: true
+  
+  # WAN OS Configuration
+  wan_os:
+    instance_id: "local-dev-001"
+    region: "local"
+    zone: "development"
+    capabilities:
+      - "file_processing"
+      - "search_indexing"
+      - "distributed_storage"
+      - "wasm_execution"
+      - "telemetry_collection"
+    
+    # Local FareyFS
+    fareyfs:
+      base_path: "./local_fareyfs_data"
+      replication_factor: 1
+      consistency: "strong"
+      
+    # Local Telemetry
+    telemetry:
+      endpoint: "http://localhost:4317"
+      service_name: "wan-os-local"
+      service_version: "1.0.0"
+      metrics:
+        enabled: true
+        interval: "5s"
+      tracing:
+        enabled: true
+        sampling_rate: 1.0
+      logging:
+        level: "DEBUG"
+        format: "json"
+        
+    # Local Feature Flags
+    features:
+      unleash:
+        api_url: "http://localhost:4242/api"
+        api_key: "development.unleash-insecure-api-token"
+        app_name: "wan-os-local"
+        environment: "development"
+      flags:
+        wasm_support: true
+        distributed_storage: true
+        advanced_search: true
+        performance_monitoring: true
+        
+    # Local Monitoring
+    monitoring:
+      prometheus:
+        endpoint: "http://localhost:9090"
+        scrape_interval: "15s"
+      grafana:
+        endpoint: "http://localhost:3000"
+        dashboards:
+          - "wan-os-overview"
+          - "performance-metrics"
+          - "system-health"
+      jaeger:
+        endpoint: "http://localhost:16686"
+        
+    # Local Security
+    security:
+      authentication:
+        type: "local"
+        users:
+          - username: "admin"
+            password: "admin123"
+            role: "admin"
+          - username: "developer"
+            password: "dev123"
+            role: "developer"
+      encryption:
+        enabled: false
+        algorithm: "AES-256"
+        
+    # Local Performance
+    performance:
+      max_concurrent_operations: 100
+      max_file_size: "1GB"
+      cache_size: "512MB"
+      worker_threads: 4
+
+# Vendor Configuration
+# For running as a product with public facing URL and private variables as env
+vendor:
+  name: "vendor"
+  description: "Vendor deployment for product distribution"
+  environment: "production"
+  
+  # Network Configuration
+  network:
+    host: "${VENDOR_HOST:api.wanos.cloud}"
+    port: "${VENDOR_PORT:443}"
+    ssl: true
+    cors:
+      enabled: true
+      origins: ["${VENDOR_FRONTEND_URL:https://wanos.cloud}"]
+    load_balancer:
+      enabled: true
+      health_check: "/health"
+      
+  # Database Configuration
+  database:
+    type: "${DB_TYPE:postgresql}"
+    url: "${DATABASE_URL}"
+    username: "${DB_USERNAME}"
+    password: "${DB_PASSWORD}"
+    hibernate:
+      ddl_auto: "validate"
+      show_sql: false
+    connection_pool:
+      max_size: 20
+      min_size: 5
+      
+  # WAN OS Configuration
+  wan_os:
+    instance_id: "${WAN_OS_INSTANCE_ID}"
+    region: "${WAN_OS_REGION:us-east-1}"
+    zone: "${WAN_OS_ZONE:production}"
+    capabilities:
+      - "file_processing"
+      - "search_indexing"
+      - "distributed_storage"
+      - "wasm_execution"
+      - "telemetry_collection"
+      - "global_monitoring"
+      - "herd_immunity"
+    
+    # Vendor FareyFS
+    fareyfs:
+      base_path: "${FAREYFS_BASE_PATH:/var/wanos/fareyfs}"
+      replication_factor: 3
+      consistency: "eventual"
+      global_sync: true
+      
+    # Vendor Telemetry
+    telemetry:
+      endpoint: "${TELEMETRY_ENDPOINT:https://telemetry.wanos.cloud}"
+      service_name: "wan-os-vendor"
+      service_version: "${WAN_OS_VERSION:1.0.0}"
+      metrics:
+        enabled: true
+        interval: "30s"
+        global_reporting: true
+      tracing:
+        enabled: true
+        sampling_rate: 0.1
+        global_tracing: true
+      logging:
+        level: "INFO"
+        format: "json"
+        global_logging: true
+        
+    # Vendor Feature Flags
+    features:
+      unleash:
+        api_url: "${UNLEASH_API_URL:https://unleash.wanos.cloud/api}"
+        api_key: "${UNLEASH_API_KEY}"
+        app_name: "wan-os-vendor"
+        environment: "production"
+      flags:
+        wasm_support: true
+        distributed_storage: true
+        advanced_search: true
+        performance_monitoring: true
+        global_monitoring: true
+        herd_immunity: true
+        
+    # Vendor Monitoring
+    monitoring:
+      prometheus:
+        endpoint: "${PROMETHEUS_ENDPOINT:https://metrics.wanos.cloud}"
+        scrape_interval: "30s"
+        global_metrics: true
+      grafana:
+        endpoint: "${GRAFANA_ENDPOINT:https://dashboards.wanos.cloud}"
+        dashboards:
+          - "wan-os-global-overview"
+          - "vendor-performance"
+          - "global-health-map"
+          - "herd-immunity-status"
+      jaeger:
+        endpoint: "${JAEGER_ENDPOINT:https://traces.wanos.cloud}"
+        global_tracing: true
+        
+    # Vendor Security
+    security:
+      authentication:
+        type: "oauth2"
+        provider: "${OAUTH_PROVIDER:auth0}"
+        client_id: "${OAUTH_CLIENT_ID}"
+        client_secret: "${OAUTH_CLIENT_SECRET}"
+        domain: "${OAUTH_DOMAIN}"
+      encryption:
+        enabled: true
+        algorithm: "AES-256-GCM"
+        key_rotation: true
+        
+    # Vendor Performance
+    performance:
+      max_concurrent_operations: 1000
+      max_file_size: "10GB"
+      cache_size: "2GB"
+      worker_threads: 16
+      global_caching: true
+      
+    # Global Monitoring
+    global_monitoring:
+      enabled: true
+      reporting_interval: "60s"
+      health_check_url: "https://health.wanos.cloud"
+      status_page_url: "https://status.wanos.cloud"
+      incident_webhook: "${INCIDENT_WEBHOOK_URL}"
+
+# Enterprise Configuration
+# For admin/LDAP specific variables, user presence, OAuth, and organizational settings
+enterprise:
+  name: "enterprise"
+  description: "Enterprise deployment with LDAP, OAuth, and organizational features"
+  environment: "enterprise"
+  
+  # Network Configuration
+  network:
+    host: "${ENTERPRISE_HOST:wanos.company.com}"
+    port: "${ENTERPRISE_PORT:443}"
+    ssl: true
+    cors:
+      enabled: true
+      origins: ["${ENTERPRISE_FRONTEND_URL:https://wanos.company.com}"]
+    internal_network:
+      enabled: true
+      vpn_required: true
+      allowed_ips: "${ALLOWED_IP_RANGES}"
+      
+  # Database Configuration
+  database:
+    type: "${ENTERPRISE_DB_TYPE:postgresql}"
+    url: "${ENTERPRISE_DATABASE_URL}"
+    username: "${ENTERPRISE_DB_USERNAME}"
+    password: "${ENTERPRISE_DB_PASSWORD}"
+    hibernate:
+      ddl_auto: "validate"
+      show_sql: false
+    connection_pool:
+      max_size: 50
+      min_size: 10
+    backup:
+      enabled: true
+      schedule: "0 2 * * *"
+      retention_days: 30
+      
+  # WAN OS Configuration
+  wan_os:
+    instance_id: "${ENTERPRISE_INSTANCE_ID}"
+    region: "${ENTERPRISE_REGION:on-premise}"
+    zone: "${ENTERPRISE_ZONE:enterprise}"
+    organization: "${ORGANIZATION_NAME}"
+    capabilities:
+      - "file_processing"
+      - "search_indexing"
+      - "distributed_storage"
+      - "wasm_execution"
+      - "telemetry_collection"
+      - "enterprise_features"
+      - "ldap_integration"
+      - "user_presence"
+      - "audit_logging"
+    
+    # Enterprise FareyFS
+    fareyfs:
+      base_path: "${ENTERPRISE_FAREYFS_PATH:/var/wanos/enterprise/fareyfs}"
+      replication_factor: 5
+      consistency: "strong"
+      encryption: true
+      audit_logging: true
+      
+    # Enterprise Telemetry
+    telemetry:
+      endpoint: "${ENTERPRISE_TELEMETRY_ENDPOINT:https://telemetry.company.com}"
+      service_name: "wan-os-enterprise"
+      service_version: "${ENTERPRISE_WAN_OS_VERSION:1.0.0}"
+      metrics:
+        enabled: true
+        interval: "15s"
+        enterprise_reporting: true
+        compliance_reporting: true
+      tracing:
+        enabled: true
+        sampling_rate: 1.0
+        enterprise_tracing: true
+        audit_tracing: true
+      logging:
+        level: "INFO"
+        format: "json"
+        enterprise_logging: true
+        audit_logging: true
+        
+    # Enterprise Feature Flags
+    features:
+      unleash:
+        api_url: "${ENTERPRISE_UNLEASH_API_URL:https://unleash.company.com/api}"
+        api_key: "${ENTERPRISE_UNLEASH_API_KEY}"
+        app_name: "wan-os-enterprise"
+        environment: "enterprise"
+      flags:
+        wasm_support: true
+        distributed_storage: true
+        advanced_search: true
+        performance_monitoring: true
+        enterprise_features: true
+        ldap_integration: true
+        user_presence: true
+        audit_logging: true
+        
+    # Enterprise Monitoring
+    monitoring:
+      prometheus:
+        endpoint: "${ENTERPRISE_PROMETHEUS_ENDPOINT:https://metrics.company.com}"
+        scrape_interval: "15s"
+        enterprise_metrics: true
+        compliance_metrics: true
+      grafana:
+        endpoint: "${ENTERPRISE_GRAFANA_ENDPOINT:https://dashboards.company.com}"
+        dashboards:
+          - "enterprise-overview"
+          - "user-activity"
+          - "compliance-status"
+          - "audit-logs"
+          - "performance-metrics"
+      jaeger:
+        endpoint: "${ENTERPRISE_JAEGER_ENDPOINT:https://traces.company.com}"
+        enterprise_tracing: true
+        
+    # Enterprise Security
+    security:
+      authentication:
+        type: "ldap"
+        ldap:
+          url: "${LDAP_URL}"
+          bind_dn: "${LDAP_BIND_DN}"
+          bind_password: "${LDAP_BIND_PASSWORD}"
+          base_dn: "${LDAP_BASE_DN}"
+          user_search_base: "${LDAP_USER_SEARCH_BASE}"
+          group_search_base: "${LDAP_GROUP_SEARCH_BASE}"
+        oauth2:
+          enabled: true
+          provider: "${ENTERPRISE_OAUTH_PROVIDER:azure-ad}"
+          client_id: "${ENTERPRISE_OAUTH_CLIENT_ID}"
+          client_secret: "${ENTERPRISE_OAUTH_CLIENT_SECRET}"
+          tenant_id: "${ENTERPRISE_OAUTH_TENANT_ID}"
+      encryption:
+        enabled: true
+        algorithm: "AES-256-GCM"
+        key_rotation: true
+        hardware_security_module: true
+      audit:
+        enabled: true
+        log_level: "ALL"
+        retention_years: 7
+        
+    # Enterprise Performance
+    performance:
+      max_concurrent_operations: 2000
+      max_file_size: "100GB"
+      cache_size: "10GB"
+      worker_threads: 32
+      enterprise_caching: true
+      compliance_caching: true
+      
+    # Enterprise Features
+    enterprise_features:
+      user_presence:
+        enabled: true
+        tracking_interval: "30s"
+        presence_timeout: "5m"
+        status_indicators: true
+      ldap_integration:
+        enabled: true
+        group_mapping: true
+        role_based_access: true
+        single_sign_on: true
+      audit_logging:
+        enabled: true
+        log_all_operations: true
+        compliance_reporting: true
+        data_retention: "7y"
+      compliance:
+        enabled: true
+        standards: ["SOX", "GDPR", "HIPAA"]
+        reporting: true
+        alerts: true
+
+# Public Configuration
+# For running caching and static serve, no secrets, full configurations
+public:
+  name: "public"
+  description: "Public deployment for caching and static serving"
+  environment: "public"
+  
+  # Network Configuration
+  network:
+    host: "${PUBLIC_HOST:cdn.wanos.cloud}"
+    port: "${PUBLIC_PORT:80}"
+    ssl: true
+    cors:
+      enabled: true
+      origins: ["*"]
+    cdn:
+      enabled: true
+      edge_locations: ["us-east-1", "us-west-2", "eu-west-1", "ap-southeast-1"]
+      cache_headers:
+        max_age: "1h"
+        stale_while_revalidate: "24h"
+        
+  # Database Configuration
+  database:
+    type: "${PUBLIC_DB_TYPE:redis}"
+    url: "${PUBLIC_DATABASE_URL}"
+    username: "${PUBLIC_DB_USERNAME}"
+    password: "${PUBLIC_DB_PASSWORD}"
+    cache:
+      enabled: true
+      ttl: "3600"
+      max_size: "1GB"
+      
+  # WAN OS Configuration
+  wan_os:
+    instance_id: "${PUBLIC_INSTANCE_ID}"
+    region: "${PUBLIC_REGION:global}"
+    zone: "${PUBLIC_ZONE:public}"
+    capabilities:
+      - "static_serving"
+      - "caching"
+      - "cdn_distribution"
+      - "public_monitoring"
+      - "herd_immunity"
+    
+    # Public FareyFS
+    fareyfs:
+      base_path: "${PUBLIC_FAREYFS_PATH:/var/wanos/public/fareyfs}"
+      replication_factor: 10
+      consistency: "eventual"
+      public_access: true
+      cdn_enabled: true
+      
+    # Public Telemetry
+    telemetry:
+      endpoint: "${PUBLIC_TELEMETRY_ENDPOINT:https://telemetry.wanos.cloud}"
+      service_name: "wan-os-public"
+      service_version: "${PUBLIC_WAN_OS_VERSION:1.0.0}"
+      metrics:
+        enabled: true
+        interval: "60s"
+        public_reporting: true
+        global_visibility: true
+      tracing:
+        enabled: true
+        sampling_rate: 0.01
+        public_tracing: true
+      logging:
+        level: "WARN"
+        format: "json"
+        public_logging: true
+        
+    # Public Feature Flags
+    features:
+      unleash:
+        api_url: "${PUBLIC_UNLEASH_API_URL:https://unleash.wanos.cloud/api}"
+        api_key: "${PUBLIC_UNLEASH_API_KEY}"
+        app_name: "wan-os-public"
+        environment: "public"
+      flags:
+        static_serving: true
+        caching: true
+        cdn_distribution: true
+        public_monitoring: true
+        herd_immunity: true
+        
+    # Public Monitoring
+    monitoring:
+      prometheus:
+        endpoint: "${PUBLIC_PROMETHEUS_ENDPOINT:https://metrics.wanos.cloud}"
+        scrape_interval: "60s"
+        public_metrics: true
+        global_visibility: true
+      grafana:
+        endpoint: "${PUBLIC_GRAFANA_ENDPOINT:https://dashboards.wanos.cloud}"
+        dashboards:
+          - "public-overview"
+          - "global-health-map"
+          - "cdn-performance"
+          - "herd-immunity-status"
+          - "public-uptime"
+      jaeger:
+        endpoint: "${PUBLIC_JAEGER_ENDPOINT:https://traces.wanos.cloud}"
+        public_tracing: true
+        
+    # Public Security
+    security:
+      authentication:
+        type: "public"
+        rate_limiting:
+          enabled: true
+          requests_per_minute: 1000
+          burst_size: 100
+      encryption:
+        enabled: true
+        algorithm: "AES-256-GCM"
+        public_key_pinning: true
+        
+    # Public Performance
+    performance:
+      max_concurrent_operations: 5000
+      max_file_size: "1GB"
+      cache_size: "5GB"
+      worker_threads: 64
+      public_caching: true
+      cdn_caching: true
+      
+    # Public Features
+    public_features:
+      static_serving:
+        enabled: true
+        file_types: ["html", "css", "js", "png", "jpg", "gif", "svg", "ico"]
+        compression: true
+        minification: true
+      caching:
+        enabled: true
+        strategy: "lru"
+        ttl: "1h"
+        max_size: "5GB"
+      cdn_distribution:
+        enabled: true
+        edge_locations: ["us-east-1", "us-west-2", "eu-west-1", "ap-southeast-1"]
+        cache_headers: true
+        compression: true
+      herd_immunity:
+        enabled: true
+        health_reporting: true
+        global_status: true
+        incident_reporting: true
+
+# Global Configuration
+# Shared across all environments
+global:
+  # Herd Immunity Configuration
+  herd_immunity:
+    enabled: true
+    reporting_interval: "60s"
+    health_check_endpoint: "/health"
+    status_page_url: "https://status.wanos.cloud"
+    incident_webhook: "${GLOBAL_INCIDENT_WEBHOOK}"
+    
+    # Global Health Monitoring
+    global_monitoring:
+      enabled: true
+      regions: ["us-east-1", "us-west-2", "eu-west-1", "ap-southeast-1"]
+      health_checks:
+        - "wan-os-instance"
+        - "fareyfs-storage"
+        - "telemetry-collection"
+        - "feature-flags"
+        - "monitoring-stack"
+        
+    # Incident Management
+    incident_management:
+      enabled: true
+      severity_levels: ["low", "medium", "high", "critical"]
+      notification_channels: ["email", "slack", "webhook", "pagerduty"]
+      escalation_policies: true
+      
+    # Global Status Page
+    status_page:
+      enabled: true
+      url: "https://status.wanos.cloud"
+      components:
+        - "WAN OS Core"
+        - "FareyFS Storage"
+        - "Telemetry Collection"
+        - "Feature Flags"
+        - "Monitoring Stack"
+        - "CDN Distribution"
+      incident_history: true
+      maintenance_windows: true
+      
+  # ROM Registration
+  rom_registration:
+    enabled: true
+    npm_registry: "https://registry.npmjs.org/"
+    haxe_registry: "https://lib.haxe.org/"
+    rom_prefix: "@wanos-rom/"
+    
+    # ROM Types
+    rom_types:
+      - "file-processor"
+      - "search-engine"
+      - "storage-manager"
+      - "wasm-runtime"
+      - "telemetry-collector"
+      - "monitoring-dashboard"
+      - "feature-flag-manager"
+      - "security-module"
+      
+    # ROM Versioning
+    versioning:
+      strategy: "semver"
+      major: "breaking-changes"
+      minor: "new-features"
+      patch: "bug-fixes"
+      
+    # ROM Distribution
+    distribution:
+      npm: true
+      haxe: true
+      docker: true
+      helm: true
+      
+  # Global Telemetry
+  global_telemetry:
+    enabled: true
+    aggregation_endpoint: "https://telemetry.wanos.cloud/aggregate"
+    metrics_retention: "90d"
+    tracing_retention: "30d"
+    log_retention: "1y"
+    
+    # Global Metrics
+    global_metrics:
+      - "wan_os_instances_total"
+      - "wan_os_uptime_percentage"
+      - "global_health_score"
+      - "incident_count_total"
+      - "response_time_p95"
+      - "throughput_operations_per_second"
+      
+    # Global Alerts
+    global_alerts:
+      - name: "Global Health Degradation"
+        condition: "global_health_score < 0.95"
+        severity: "critical"
+        notification: ["global-ops", "status-page"]
+      - name: "Multiple Region Outage"
+        condition: "healthy_regions < total_regions * 0.8"
+        severity: "critical"
+        notification: ["global-ops", "status-page", "pagerduty"]
+      - name: "Performance Degradation"
+        condition: "response_time_p95 > 1000"
+        severity: "high"
+        notification: ["global-ops", "status-page"]
